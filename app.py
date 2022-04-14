@@ -104,5 +104,22 @@ def event_log():
     return make_response(jsonify({"msg":"Token invalid"}))
 
 # http://127.0.0.1:7007/api/v1/events/logs
+@app.route("/api/v1/events/logs", methods=["GET"])
+def event_logs():
+   token = request.json['token']
+   event_name = request.json['event_name']
+   
+   user=Users.query.filter_by(token=token).first()
+   if user:
+      array_logs =[]
+      logs = Logs.query.all()
+      for log in logs:
+         if log.event_name == event_name:
+            dict_logs = {}
+            dict_logs.update({"username": log.username, "log_lat": log.log_lat, "log_lng": log.log_lng, "created_at": log.created_at})
+            array_logs.append(dict_logs)
+      return make_response(jsonify(array_logs), 200, {'content-type':'application/json'})
+   return make_response(jsonify({"msg": "Token salah"}))
+
 if __name__ == '__main__':
    app.run(debug = True, port=7007)
